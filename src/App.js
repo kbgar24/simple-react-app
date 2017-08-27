@@ -4,59 +4,36 @@ import ReactDOM from 'react-dom';
 class App extends React.Component {
   constructor(){
     super()
-    this.state = {val: 0}
-    this.update = this.update.bind(this)
+    this.state = {increasing: false}
+  }
+  update() {
+    ReactDOM.render(<App val={this.props.val+1} />, document.getElementById('root'))
   }
 
-  update(){
-    this.setState({val: this.state.val+1})
+  //when new props are coming in
+  componentWillReceiveProps(nextProps){
+    console.log(nextProps)
+    this.setState({increasing: nextProps.val > this.props.val})
   }
 
-  //guaranteed to make into DOM, only fired once, before rendering to DOM
-  componentWillMount(){
-    console.log('componentWillMount')
-    this.setState({m: 2})
+  shouldComponentUpdate(nextProps, nextState){
+    return nextProps.val % 5 === 0;
   }
 
-  //after rendering to DOM
-  componentDidMount(){
-    console.log('componentDidMount')
-    console.log(ReactDOM.findDOMNode(this))
-    this.inc = setInterval(this.update, 500)
-  }
-
-  componentWillUnmount(){
-    console.log('componentWillUnmount')
-    clearInterval(this.inc)
+  componentDidUpdate(prevProps, prevState){
+    console.log(`prevProps: ${prevProps.val}`)
   }
 
   render(){
-    console.log('render');
+    console.log(this.state.increasing)
     return (
-      <button onClick={this.update}>
-        {this.state.val * this.state.m}
+      <button onClick={this.update.bind(this)}>
+        {this.props.val}        
       </button>
     )
   }
 }
 
-class Wrapper extends React.Component {
-  mount(){
-    ReactDOM.render(<App />, document.getElementById('a'))
-  }
-  unmount(){
-    ReactDOM.unmountComponentAtNode(document.getElementById('a'))
-  }
+App.defaultProps = {val: 0}
 
-  render(){
-    return (
-      <div>
-        <button onClick={this.mount.bind(this)}>Mount</button>
-        <button onClick={this.unmount.bind(this)}>UnMount</button>
-        <div id="a"></div>
-      </div>
-    )
-  }
-}
-
-export default Wrapper
+export default App
